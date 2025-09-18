@@ -1,0 +1,18 @@
+using Microsoft.Extensions.DependencyInjection;
+
+namespace ViesApi;
+
+public static class ServiceCollectionExtensions
+{
+    public static IServiceCollection AddViesApiServices(this IServiceCollection services, Action<ViesApiConfiguration> configure)
+    {
+        var config = new ViesApiConfiguration();
+        configure?.Invoke(config);
+        
+        services.AddSingleton(config);
+        services.AddSingleton<IViesApiService, ViesApiService>();
+        services.AddSingleton<ViesVatFormatService>();
+        
+        return services;
+    }
+}
