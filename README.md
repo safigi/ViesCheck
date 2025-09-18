@@ -1,6 +1,8 @@
-# ViesApi NuGet Package
+# ViesCheck - VIES API NuGet Package
 
 A .NET library for validating VAT numbers using the European Commission's VIES service.
+
+[![GitHub Repository](https://img.shields.io/badge/GitHub-ViesCheck-blue?style=flat-square&logo=github)](https://github.com/safigi/ViesCheck)
 
 ## Installation
 
