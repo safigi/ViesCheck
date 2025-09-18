@@ -23,6 +23,14 @@ bld/
 [Ll]og/
 [Ll]ogs/
 
+# Visual Studio IDE files
+.vs/
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
 # .NET Core
 project.lock.json
 project.fragment.lock.json
@@ -35,6 +43,8 @@ ScaffoldingReadMe.txt
 *.nupkg
 # NuGet Symbol Packages
 *.snupkg
+# NuGet executable (not needed with modern .NET)
+nuget.exe
 
 # Others
 ~$*
