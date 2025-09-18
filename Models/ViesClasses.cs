@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace ViesApi;
+namespace ViesApi.Models;
 
 public class CountryInfo
 {

@@ -1,6 +1,9 @@
 using Microsoft.Extensions.DependencyInjection;
+using ViesApi.Configuration;
+using ViesApi.Interfaces;
+using ViesApi.Services;
 
-namespace ViesApi;
+namespace ViesApi.Extensions;
 
 public static class ServiceCollectionExtensions
 {

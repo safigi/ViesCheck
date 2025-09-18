@@ -1,4 +1,7 @@
-namespace ViesApi;
+using ViesApi.Configuration;
+using ViesApi.Models;
+
+namespace ViesApi.Services;
 
 public class ViesVatFormatService
 {

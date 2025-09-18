@@ -1,9 +1,11 @@
 using System.Text.Json;
-using MatchType = ViesApi.MatchType;
+using ViesApi.Interfaces;
+using ViesApi.Models;
+using MatchType = ViesApi.Models.MatchType;
 
-namespace ViesApi;
+namespace ViesApi.Services;
 
-public class ViesApiService : IViesApiService : IViesApiService : IViesApiService
+public class ViesApiService : IViesApiService
 {
     private readonly HttpClient _httpClient;
     private readonly string _baseUrl = "https://ec.europa.eu/taxation_customs/vies/rest-api";

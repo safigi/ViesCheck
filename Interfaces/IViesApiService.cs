@@ -1,4 +1,6 @@
-namespace ViesApi;
+using ViesApi.Models;
+
+namespace ViesApi.Interfaces;
 
 public interface IViesApiService
 {

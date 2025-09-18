@@ -1,4 +1,4 @@
-namespace ViesApi;
+namespace ViesApi.Configuration;
 
 public class ViesApiConfiguration
 {

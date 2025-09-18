@@ -112,6 +112,55 @@ var languages = _vatFormatService.GetSupportedLanguages();
 - Format VAT numbers according to country-specific rules
 - Get country-specific VAT number examples and formats
 - Check the status of the VIES service
+- Multi-language support for country names (24 languages)
+- Clean Code and SOLID principles implementation
+- Comprehensive unit test coverage
+
+## Testing
+
+### Running Unit Tests
+
+```bash
+dotnet test ViesApi.Tests
+```
+
+### Running Test Console Application
+
+```bash
+cd ViesApi.TestConsole
+dotnet run
+```
+
+The test console application demonstrates:
+- Multi-language country name retrieval
+- VAT number formatting for different countries
+- VIES API status checking
+- Sample VAT number validation
+- All available features in action
+
+### Test Coverage
+
+The project includes comprehensive unit tests covering:
+- `ViesVatFormatService` - All formatting and utility methods
+- `ViesVatConfiguration` - Multi-language configuration
+- `CountryVatFormat` - Language fallback logic
+- Edge cases and error handling
+
+## Development
+
+### Project Structure
+
+```
+ViesNuGetProject/           # Main NuGet package
+├── Configuration/          # Configuration classes
+├── Extensions/            # Dependency injection extensions
+├── Interfaces/            # Service interfaces
+├── Models/               # Data transfer objects
+└── Services/             # Service implementations
+
+ViesApi.Tests/             # Unit tests (xUnit)
+ViesApi.TestConsole/       # Demo console application
+```
 
 ## License
 
