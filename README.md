@@ -151,15 +151,15 @@ The project includes comprehensive unit tests covering:
 ### Project Structure
 
 ```
-ViesNuGetProject/           # Main NuGet package
-├── Configuration/          # Configuration classes
-├── Extensions/            # Dependency injection extensions
-├── Interfaces/            # Service interfaces
-├── Models/               # Data transfer objects
-└── Services/             # Service implementations
+ViesApi/                   # Main NuGet package
+├── Configuration/         # Configuration classes
+├── Extensions/           # Dependency injection extensions
+├── Interfaces/           # Service interfaces
+├── Models/              # Data transfer objects
+└── Services/            # Service implementations
 
-ViesApi.Tests/             # Unit tests (xUnit)
-ViesApi.TestConsole/       # Demo console application
+Tests/                    # Unit tests (xUnit)
+TestConsole/             # Demo console application
 ```
 
 ## License
