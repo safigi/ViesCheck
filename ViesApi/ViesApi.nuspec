@@ -19,6 +19,6 @@
   <files>
     <file src="bin\Debug\net8.0\publish\ViesApi.dll" target="lib\net8.0\ViesApi.dll" />
     <file src="bin\Debug\net8.0\publish\ViesApi.pdb" target="lib\net8.0\ViesApi.pdb" />
-    <file src="README.md" target="" />
+    <file src=".\README.md" target="" />
   </files>
 </package>

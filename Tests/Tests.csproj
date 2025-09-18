@@ -28,7 +28,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ViesApi.csproj" />
+    <ProjectReference Include="..\ViesApi\ViesApi.csproj" />
   </ItemGroup>
 
   <ItemGroup>

@@ -54,8 +54,8 @@ class Program
 
         var testVatNumbers = new[]
         {
-            ("12345678", "HU"),
-            ("12345678", "AT"),
+            ("10773381", "HU"),
+            ("U37893801", "AT"),
             ("123456789", "NL"),
             ("123456789", "DE"),
             ("X1234567890", "FR")
@@ -122,8 +122,8 @@ class Program
 
         var sampleVatNumbers = new[]
         {
-            new ViesCheckRequest { CountryCode = "HU", VatNumber = "12345678" },
-            new ViesCheckRequest { CountryCode = "DE", VatNumber = "123456789" }
+            new ViesCheckRequest { CountryCode = "HU", VatNumber = "10773381" },
+            new ViesCheckRequest { CountryCode = "AT", VatNumber = "U37893801" }
         };
 
         foreach (var request in sampleVatNumbers)
