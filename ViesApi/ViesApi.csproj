@@ -3,21 +3,27 @@
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <PackageId>ViesApiNuGet</PackageId>
-    <Version>1.0.0</Version>
-    <Authors>YourName</Authors>
-    <Description>A NuGet package for VIES API integration with configurable settings.</Description>
-    <PackageProjectUrl>https://yourprojecturl.com</PackageProjectUrl>
-    <RepositoryUrl>https://yourrepositoryurl.com</RepositoryUrl>
+    <PackageId>ViesApi</PackageId>
+    <Version>1.0.1</Version>
+    <Authors>safigi</Authors>
+    <Company>safigi</Company>
+    <Description>A .NET library for validating VAT numbers using the European Commission's VIES service. Supports multi-language country names and VAT number formatting.</Description>
+    <PackageProjectUrl>https://github.com/safigi/ViesCheck</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/safigi/ViesCheck.git</RepositoryUrl>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageTags>VIES;VAT;validation;EU;taxation;NuGet</PackageTags>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="System.Net.Http" Version="4.3.4" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\README.md" Pack="true" PackagePath="\" />
   </ItemGroup>
 
 </Project>
