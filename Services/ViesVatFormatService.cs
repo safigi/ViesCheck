@@ -43,7 +43,7 @@ public class ViesVatFormatService
         return countryCode + vatNumber;
     }
 
-    public List<CountryInfo> GetAllCountries()
+    public List<CountryInfo> GetAllCountries(string languageCode = "en")
     {
         var countries = new List<CountryInfo>();
 
@@ -52,7 +52,7 @@ public class ViesVatFormatService
             countries.Add(new CountryInfo
             {
                 Code = country.Key,
-                Name = country.Value.CountryName,
+                Name = country.Value.GetCountryName(languageCode),
                 Example = country.Value.Example,
                 Format = country.Value.Format
             });
@@ -70,15 +70,34 @@ public class ViesVatFormatService
         return null;
     }
 
-    public string GetCountryName(string countryCode)
+    public string GetCountryName(string countryCode, string languageCode = "en")
     {
         var config = GetVatConfig(countryCode);
-        return config?.CountryName ?? countryCode;
+        return config?.GetCountryName(languageCode) ?? countryCode;
     }
 
     public string GetExampleVatNumber(string countryCode)
     {
         var config = GetVatConfig(countryCode);
         return config?.Example ?? $"{countryCode}12345678";
+    }
+
+    /// <summary>
+    /// Gets all supported language codes for country names
+    /// </summary>
+    /// <returns>List of language codes</returns>
+    public List<string> GetSupportedLanguages()
+    {
+        return ViesVatConfiguration.GetSupportedLanguages();
+    }
+
+    /// <summary>
+    /// Gets all country names in the specified language
+    /// </summary>
+    /// <param name="languageCode">Language code (e.g., "en", "hu", "de")</param>
+    /// <returns>Dictionary with country codes and localized names</returns>
+    public Dictionary<string, string> GetAllCountryNames(string languageCode = "en")
+    {
+        return ViesVatConfiguration.GetCountryNames(languageCode);
     }
 }

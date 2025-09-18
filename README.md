@@ -80,6 +80,32 @@ var formattedVat = _vatFormatService.FormatVatNumber("12345678", "HU");
 Console.WriteLine(formattedVat); // Output: HU12345678
 ```
 
+### Multi-language Country Names
+
+The package supports country names in multiple languages:
+
+```csharp
+// Get country name in English (default)
+var englishName = _vatFormatService.GetCountryName("HU"); // "Hungary"
+
+// Get country name in Hungarian
+var hungarianName = _vatFormatService.GetCountryName("HU", "hu"); // "Magyarország"
+
+// Get country name in German
+var germanName = _vatFormatService.GetCountryName("DE", "de"); // "Deutschland"
+
+// Get all countries with localized names
+var countryNames = _vatFormatService.GetAllCountryNames("en");
+foreach (var country in countryNames)
+{
+    Console.WriteLine($"{country.Key}: {country.Value}");
+}
+
+// Get all supported languages
+var languages = _vatFormatService.GetSupportedLanguages();
+// Returns: ["bg", "cs", "da", "de", "el", "en", "es", "et", "fi", "fr", "ga", "hr", "hu", "it", "lv", "lt", "mt", "nl", "pl", "pt", "ro", "sk", "sl", "sv"]
+```
+
 ## Features
 
 - Validate VAT numbers against the VIES API
