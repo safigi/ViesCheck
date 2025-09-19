@@ -15,7 +15,13 @@ public static class ServiceCollectionExtensions
         services.AddSingleton(config);
         services.AddHttpClient();
         services.AddTransient<IViesApiService, ViesApiService>();
+        
+        // Register the concrete class as singleton
         services.AddSingleton<ViesVatFormatService>();
+        
+        // Register interface to resolve to the same instance (backward compatibility)
+        services.AddSingleton<IViesVatFormatService>(serviceProvider => 
+            serviceProvider.GetRequiredService<ViesVatFormatService>());
         
         return services;
     }

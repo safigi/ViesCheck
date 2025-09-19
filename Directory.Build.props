@@ -2,8 +2,8 @@
   <PropertyGroup>
     <!-- Centralized version management -->
     <MajorVersion>1</MajorVersion>
-    <MinorVersion>0</MinorVersion>
-    <PatchVersion>2</PatchVersion>
+    <MinorVersion>1</MinorVersion>
+    <PatchVersion>0</PatchVersion>
     <PreReleaseLabel></PreReleaseLabel>
     
     <!-- Build version from parts -->
