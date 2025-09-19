@@ -49,9 +49,9 @@ classes:
 public class YourService
 {
     private readonly IViesApiService _viesApiService;
-    private readonly ViesVatFormatService _vatFormatService;
+    private readonly IViesVatFormatService _vatFormatService;
 
-    public YourService(IViesApiService viesApiService, ViesVatFormatService vatFormatService)
+    public YourService(IViesApiService viesApiService, IViesVatFormatService vatFormatService)
     {
         _viesApiService = viesApiService;
         _vatFormatService = vatFormatService;
@@ -207,7 +207,7 @@ var germanName = _vatFormatService.GetCountryName("DE", "de"); // "Deutschland"
 -   Get country-specific VAT number examples and formats\
 -   Check the status of the VIES service\
 -   Multi-language support for country names (24 languages)\
--   Clean Code and SOLID principles implementation\
+-   Clean Code, SOLID principles implementation, and clear separation of concerns with interfaces\
 -   Comprehensive unit test coverage
 
 ------------------------------------------------------------------------
@@ -244,7 +244,8 @@ retrieval\
     ├── Configuration/         # Configuration classes
     ├── Extensions/            # Dependency injection extensions
     ├── Interfaces/            # Service interfaces
-    ├── Models/                # Data transfer objects
+    ├── Interfaces/            # Service interfaces
+    ├── Models/
     └── Services/              # Service implementations
 
     Tests/                     # Unit tests (xUnit)

@@ -4,7 +4,7 @@ namespace ViesApi.Tests;
 
 public class ViesVatFormatServiceTests
 {
-    private readonly ViesVatFormatService _service;
+    private readonly IViesVatFormatService _service;
 
     public ViesVatFormatServiceTests()
     {

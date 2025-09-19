@@ -24,11 +24,12 @@ class Program
                     config.ApiEndpoint = "https://ec.europa.eu/taxation_customs/vies/rest-api";
                     config.TimeoutSeconds = 30;
                 });
+                                services.AddSingleton<IViesVatFormatService, ViesVatFormatService>();
                 services.AddHttpClient();
             })
             .Build();
 
-        var vatFormatService = host.Services.GetRequiredService<ViesVatFormatService>();
+        var vatFormatService = host.Services.GetRequiredService<IViesVatFormatService>();
         var viesApiService = host.Services.GetRequiredService<IViesApiService>();
 
         // Test 1: Multi-language country names

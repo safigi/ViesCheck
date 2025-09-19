@@ -3,7 +3,7 @@ using ViesApi.Models;
 
 namespace ViesApi.Services;
 
-public class ViesVatFormatService
+public class ViesVatFormatService : IViesVatFormatService
 {
     public string FormatVatNumber(string vatNumber, string countryCode)
     {

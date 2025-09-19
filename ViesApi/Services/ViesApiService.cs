@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Text.Json;
 using ViesApi.Interfaces;
 using ViesApi.Models;
@@ -7,8 +8,8 @@ namespace ViesApi.Services;
 
 public class ViesApiService : IViesApiService
 {
-    private readonly HttpClient _httpClient;
     private readonly string _baseUrl = "https://ec.europa.eu/taxation_customs/vies/rest-api";
+    private readonly HttpClient _httpClient;
 
     public ViesApiService(HttpClient httpClient)
     {
@@ -20,22 +21,19 @@ public class ViesApiService : IViesApiService
     {
         try
         {
-            if (!string.IsNullOrEmpty(request.RequesterMemberStateCode) && !string.IsNullOrEmpty(request.RequesterNumber))
-            {
+            if (!string.IsNullOrEmpty(request.RequesterMemberStateCode) &&
+                !string.IsNullOrEmpty(request.RequesterNumber))
                 return await CheckVatWithRequesterAsync(
-                    request.CountryCode, 
+                    request.CountryCode,
                     request.VatNumber,
                     request.RequesterMemberStateCode,
                     request.RequesterNumber,
                     request);
-            }
-            else
-            {
-                return await CheckVatSimpleAsync(
-                    request.CountryCode, 
-                    request.VatNumber,
-                    request);
-            }
+
+            return await CheckVatSimpleAsync(
+                request.CountryCode,
+                request.VatNumber,
+                request);
         }
         catch (Exception ex)
         {
@@ -51,39 +49,65 @@ public class ViesApiService : IViesApiService
         }
     }
 
+    public async Task<StatusInformationResponse> CheckStatusAsync()
+    {
+        try
+        {
+            var response = await _httpClient.GetAsync($"{_baseUrl}/check-status");
+
+            if (response.IsSuccessStatusCode)
+            {
+                var responseContent = await response.Content.ReadAsStringAsync();
+                return JsonSerializer.Deserialize<StatusInformationResponse>(responseContent)!;
+            }
+
+            return new StatusInformationResponse
+            {
+                Vow = new VowStatus { Available = false },
+                Countries = new List<CountryStatus>()
+            };
+        }
+        catch (Exception ex)
+        {
+            return new StatusInformationResponse
+            {
+                Vow = new VowStatus { Available = false },
+                Countries = new List<CountryStatus>()
+            };
+        }
+    }
+
     private async Task<ViesCheckResponse> CheckVatWithRequesterAsync(
-        string targetCountryCode, 
+        string targetCountryCode,
         string targetVatNumber,
-        string requesterCountryCode, 
-        string requesterVatNumber, 
+        string requesterCountryCode,
+        string requesterVatNumber,
         ViesCheckRequest originalRequest)
     {
         try
         {
-            string url = $"{_baseUrl}/ms/{targetCountryCode}/vat/{targetVatNumber}" +
-                        $"?requesterMemberStateCode={requesterCountryCode}&requesterNumber={requesterVatNumber}";
+            var url = $"{_baseUrl}/ms/{targetCountryCode}/vat/{targetVatNumber}" +
+                      $"?requesterMemberStateCode={requesterCountryCode}&requesterNumber={requesterVatNumber}";
 
             var response = await _httpClient.GetAsync(url);
             var content = await response.Content.ReadAsStringAsync();
-                
+
             if (response.IsSuccessStatusCode)
             {
                 var viesData = JsonSerializer.Deserialize<ViesResponse>(content);
                 return MapViesResponseToVatCheckResponse(viesData, originalRequest);
             }
-            else
+
+            var errorData = TryParseError(content);
+            return new ViesCheckResponse
             {
-                var errorData = TryParseError(content);
-                return new ViesCheckResponse
-                {
-                    CountryCode = targetCountryCode,
-                    VatNumber = originalRequest.VatNumber,
-                    RequestDate = DateTime.Now,
-                    Valid = false,
-                    HasError = true,
-                    ErrorMessage = errorData?.ErrorMessage ?? $"VIES API Error: {response.StatusCode}"
-                };
-            }
+                CountryCode = targetCountryCode,
+                VatNumber = originalRequest.VatNumber,
+                RequestDate = DateTime.Now,
+                Valid = false,
+                HasError = true,
+                ErrorMessage = errorData?.ErrorMessage ?? $"VIES API Error: {response.StatusCode}"
+            };
         }
         catch (Exception ex)
         {
@@ -99,7 +123,8 @@ public class ViesApiService : IViesApiService
         }
     }
 
-    private ViesCheckResponse MapViesResponseToVatCheckResponse(ViesResponse viesData, ViesCheckRequest originalRequest)
+    private ViesCheckResponse MapViesResponseToVatCheckResponse(ViesResponse? viesData,
+        ViesCheckRequest originalRequest)
     {
         if (viesData == null)
         {
@@ -121,11 +146,11 @@ public class ViesApiService : IViesApiService
             RequestDate = ParseRequestDate(viesData.requestDate),
             Valid = viesData.isValid,
             RequestIdentifier = viesData.requestIdentifier,
-            Name = CleanViesValue(viesData.name),
-            Address = CleanViesValue(viesData.address),
+            Name = CleanViesValue(viesData.name)!,
+            Address = CleanViesValue(viesData.address)!,
             HasError = false,
-            ErrorMessage = null,                             
-                
+            ErrorMessage = null,
+
             TraderNameMatch = MatchType.NOT_PROCESSED,
             TraderStreetMatch = MatchType.NOT_PROCESSED,
             TraderPostalCodeMatch = MatchType.NOT_PROCESSED,
@@ -147,19 +172,19 @@ public class ViesApiService : IViesApiService
 
     private DateTime ParseRequestDate(string requestDate)
     {
-        if (DateTime.TryParse(requestDate, out DateTime result))
+        if (DateTime.TryParse(requestDate, out var result))
             return result;
         return DateTime.Now;
     }
 
-    private string CleanViesValue(string value)
+    private string? CleanViesValue(string value)
     {
         if (string.IsNullOrWhiteSpace(value) || value == "---")
             return null;
         return value.Trim();
     }
 
-    private MatchType ConvertMatchScore(int matchScore)
+    private static MatchType ConvertMatchScore(int matchScore)
     {
         return matchScore switch
         {
@@ -190,85 +215,54 @@ public class ViesApiService : IViesApiService
         }
     }
 
-    public async Task<StatusInformationResponse> CheckStatusAsync()
+    private async Task<ViesCheckResponse> CheckVatSimpleAsync(
+        string targetCountryCode,
+        string targetVatNumber,
+        ViesCheckRequest originalRequest)
     {
         try
         {
-            var response = await _httpClient.GetAsync($"{_baseUrl}/check-status");
+            var url = $"{_baseUrl}/ms/{targetCountryCode}/vat/{targetVatNumber}";
+
+            Debug.WriteLine($"VIES Simple GET Request: {url}");
+
+            var response = await _httpClient.GetAsync(url);
+            var content = await response.Content.ReadAsStringAsync();
+
+            Debug.WriteLine($"VIES Response Status: {response.StatusCode}");
+            Debug.WriteLine($"VIES Response Body: {content}");
 
             if (response.IsSuccessStatusCode)
             {
-                var responseContent = await response.Content.ReadAsStringAsync();
-                return JsonSerializer.Deserialize<StatusInformationResponse>(responseContent);
+                var viesData = JsonSerializer.Deserialize<ViesResponse>(content);
+                return MapViesResponseToVatCheckResponse(viesData, originalRequest);
             }
-            else
+
+            var errorData = TryParseError(content);
+            return new ViesCheckResponse
             {
-                return new StatusInformationResponse
-                {
-                    Vow = new VowStatus { Available = false },
-                    Countries = new System.Collections.Generic.List<CountryStatus>()
-                };
-            }
+                CountryCode = targetCountryCode,
+                VatNumber = originalRequest.VatNumber,
+                RequestDate = DateTime.Now,
+                Valid = false,
+                HasError = true,
+                ErrorMessage = errorData?.ErrorMessage ?? $"VIES API Error: {response.StatusCode}"
+            };
         }
         catch (Exception ex)
         {
-            return new StatusInformationResponse
+            return new ViesCheckResponse
             {
-                Vow = new VowStatus { Available = false },
-                Countries = new System.Collections.Generic.List<CountryStatus>()
+                CountryCode = targetCountryCode,
+                VatNumber = originalRequest.VatNumber,
+                RequestDate = DateTime.Now,
+                Valid = false,
+                HasError = true,
+                ErrorMessage = ex.Message
             };
         }
     }
 
-        private async Task<ViesCheckResponse> CheckVatSimpleAsync(
-            string targetCountryCode, 
-            string targetVatNumber,
-            ViesCheckRequest originalRequest)
-        {
-            try
-            {
-                string url = $"{_baseUrl}/ms/{targetCountryCode}/vat/{targetVatNumber}";
-                
-                System.Diagnostics.Debug.WriteLine($"VIES Simple GET Request: {url}");
-                
-                var response = await _httpClient.GetAsync(url);
-                var content = await response.Content.ReadAsStringAsync();
-                
-                System.Diagnostics.Debug.WriteLine($"VIES Response Status: {response.StatusCode}");
-                System.Diagnostics.Debug.WriteLine($"VIES Response Body: {content}");
-                
-                if (response.IsSuccessStatusCode)
-                {
-                    var viesData = JsonSerializer.Deserialize<ViesResponse>(content);
-                    return MapViesResponseToVatCheckResponse(viesData, originalRequest);
-                }
-                else
-                {
-                    var errorData = TryParseError(content);
-                    return new ViesCheckResponse
-                    {
-                        CountryCode = targetCountryCode,
-                        VatNumber = originalRequest.VatNumber,
-                        RequestDate = DateTime.Now,
-                        Valid = false,
-                        HasError = true,
-                        ErrorMessage = errorData?.ErrorMessage ?? $"VIES API Error: {response.StatusCode}"
-                    };
-                }
-            }
-            catch (Exception ex)
-            {
-                return new ViesCheckResponse
-                {
-                    CountryCode = targetCountryCode,
-                    VatNumber = originalRequest.VatNumber,
-                    RequestDate = DateTime.Now,
-                    Valid = false,
-                    HasError = true,
-                    ErrorMessage = ex.Message
-                };
-            }
-        }
     public class ViesErrorData
     {
         public string ErrorCode { get; set; }
