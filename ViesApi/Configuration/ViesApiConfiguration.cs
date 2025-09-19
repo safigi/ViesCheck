@@ -2,8 +2,7 @@ namespace ViesApi.Configuration;
 
 public class ViesApiConfiguration
 {
-    public string ApiEndpoint { get; set; } = "https://ec.europa.eu/taxation_customs/vies/services/checkVatService";
+    public string BaseUrl { get; set; } = "https://ec.europa.eu/taxation_customs/vies/rest-api";
     public int TimeoutSeconds { get; set; } = 30;
-    public bool UseProxy { get; set; } = false;
-    public string ProxyUrl { get; set; } = string.Empty;
+    public string UserAgent { get; set; } = "ViesApi/1.0";
 }

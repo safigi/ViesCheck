@@ -1,0 +1,26 @@
+<Project>
+  <PropertyGroup>
+    <!-- Centralized version management -->
+    <MajorVersion>1</MajorVersion>
+    <MinorVersion>0</MinorVersion>
+    <PatchVersion>2</PatchVersion>
+    <PreReleaseLabel></PreReleaseLabel>
+    
+    <!-- Build version from parts -->
+    <Version Condition="'$(PreReleaseLabel)' == ''">$(MajorVersion).$(MinorVersion).$(PatchVersion)</Version>
+    <Version Condition="'$(PreReleaseLabel)' != ''">$(MajorVersion).$(MinorVersion).$(PatchVersion)-$(PreReleaseLabel)</Version>
+    
+    <!-- Auto-increment build number for CI/CD -->
+    <BuildNumber Condition="'$(BuildNumber)' == ''">0</BuildNumber>
+    <InformationalVersion>$(Version)+build.$(BuildNumber)</InformationalVersion>
+    
+    <!-- Common package properties -->
+    <Authors>safigi</Authors>
+    <Company>safigi</Company>
+    <Copyright>Copyright © safigi $([System.DateTime]::Now.Year)</Copyright>
+    <RepositoryUrl>https://github.com/safigi/ViesCheck.git</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/safigi/ViesCheck</PackageProjectUrl>
+  </PropertyGroup>
+</Project>

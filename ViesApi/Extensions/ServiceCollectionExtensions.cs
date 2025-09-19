@@ -7,13 +7,14 @@ namespace ViesApi.Extensions;
 
 public static class ServiceCollectionExtensions
 {
-    public static IServiceCollection AddViesApiServices(this IServiceCollection services, Action<ViesApiConfiguration> configure)
+    public static IServiceCollection AddViesApiServices(this IServiceCollection services, Action<ViesApiConfiguration>? configure = null)
     {
         var config = new ViesApiConfiguration();
         configure?.Invoke(config);
         
         services.AddSingleton(config);
-        services.AddSingleton<IViesApiService, ViesApiService>();
+        services.AddHttpClient();
+        services.AddTransient<IViesApiService, ViesApiService>();
         services.AddSingleton<ViesVatFormatService>();
         
         return services;

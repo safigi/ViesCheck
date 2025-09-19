@@ -1,5 +1,7 @@
 using System.Diagnostics;
 using System.Text.Json;
+using Microsoft.Extensions.Logging;
+using ViesApi.Configuration;
 using ViesApi.Interfaces;
 using ViesApi.Models;
 using MatchType = ViesApi.Models.MatchType;
@@ -8,27 +10,36 @@ namespace ViesApi.Services;
 
 public class ViesApiService : IViesApiService
 {
-    private readonly string _baseUrl = "https://ec.europa.eu/taxation_customs/vies/rest-api";
+    private readonly string _baseUrl;
     private readonly HttpClient _httpClient;
+    private readonly ILogger<ViesApiService> _logger;
 
-    public ViesApiService(HttpClient httpClient)
+    public ViesApiService(IHttpClientFactory httpClientFactory, ILogger<ViesApiService> logger, ViesApiConfiguration config)
     {
-        _httpClient = httpClient;
-        _httpClient.DefaultRequestHeaders.Add("User-Agent", "EBP_V1_Application/1.0");
+        _httpClient = httpClientFactory.CreateClient();
+        _logger = logger;
+        _baseUrl = config.BaseUrl;
+        
+        _httpClient.Timeout = TimeSpan.FromSeconds(config.TimeoutSeconds);
+        _httpClient.DefaultRequestHeaders.Add("User-Agent", config.UserAgent);
     }
 
     public async Task<ViesCheckResponse> CheckVatNumberAsync(ViesCheckRequest request)
     {
+        _logger.LogInformation("Starting VAT validation for {CountryCode}-{VatNumber}", request.CountryCode, request.VatNumber);
+        
         try
         {
             if (!string.IsNullOrEmpty(request.RequesterMemberStateCode) &&
                 !string.IsNullOrEmpty(request.RequesterNumber))
+            {
                 return await CheckVatWithRequesterAsync(
                     request.CountryCode,
                     request.VatNumber,
                     request.RequesterMemberStateCode,
                     request.RequesterNumber,
                     request);
+            }
 
             return await CheckVatSimpleAsync(
                 request.CountryCode,
@@ -37,6 +48,7 @@ public class ViesApiService : IViesApiService
         }
         catch (Exception ex)
         {
+            _logger.LogError(ex, "VAT validation failed for {CountryCode}-{VatNumber}", request.CountryCode, request.VatNumber);
             return new ViesCheckResponse
             {
                 CountryCode = request.CountryCode,
@@ -67,8 +79,9 @@ public class ViesApiService : IViesApiService
                 Countries = []
             };
         }
-        catch (Exception)
+        catch (Exception ex)
         {
+            _logger.LogError(ex, "VIES status check failed");
             return new StatusInformationResponse
             {
                 Vow = new VowStatus { Available = false },
@@ -84,21 +97,27 @@ public class ViesApiService : IViesApiService
         string requesterVatNumber,
         ViesCheckRequest originalRequest)
     {
+        var url = $"{_baseUrl}/ms/{targetCountryCode}/vat/{targetVatNumber}" +
+                  $"?requesterMemberStateCode={requesterCountryCode}&requesterNumber={requesterVatNumber}";
+        
         try
         {
-            var url = $"{_baseUrl}/ms/{targetCountryCode}/vat/{targetVatNumber}" +
-                      $"?requesterMemberStateCode={requesterCountryCode}&requesterNumber={requesterVatNumber}";
-
             var response = await _httpClient.GetAsync(url);
             var content = await response.Content.ReadAsStringAsync();
 
             if (response.IsSuccessStatusCode)
             {
                 var viesData = JsonSerializer.Deserialize<ViesResponse>(content);
-                return MapViesResponseToVatCheckResponse(viesData, originalRequest);
+                var result = MapViesResponseToVatCheckResponse(viesData, originalRequest);
+                _logger.LogInformation("VAT validation completed for {CountryCode}-{VatNumber}: {Valid}", 
+                    targetCountryCode, targetVatNumber, result.Valid);
+                return result;
             }
 
             var errorData = TryParseError(content);
+            _logger.LogWarning("VIES API error for {CountryCode}-{VatNumber}: {ErrorMessage}", 
+                targetCountryCode, targetVatNumber, errorData.ErrorMessage);
+            
             return new ViesCheckResponse
             {
                 CountryCode = targetCountryCode,
@@ -111,6 +130,9 @@ public class ViesApiService : IViesApiService
         }
         catch (Exception ex)
         {
+            _logger.LogError(ex, "Exception during VAT validation for {CountryCode}-{VatNumber}", 
+                targetCountryCode, targetVatNumber);
+            
             return new ViesCheckResponse
             {
                 CountryCode = targetCountryCode,
@@ -216,10 +238,10 @@ public class ViesApiService : IViesApiService
         string targetVatNumber,
         ViesCheckRequest originalRequest)
     {
+        var url = $"{_baseUrl}/ms/{targetCountryCode}/vat/{targetVatNumber}";
+        
         try
         {
-            var url = $"{_baseUrl}/ms/{targetCountryCode}/vat/{targetVatNumber}";
-
             Debug.WriteLine($"VIES Simple GET Request: {url}");
 
             var response = await _httpClient.GetAsync(url);
@@ -231,10 +253,16 @@ public class ViesApiService : IViesApiService
             if (response.IsSuccessStatusCode)
             {
                 var viesData = JsonSerializer.Deserialize<ViesResponse>(content);
-                return MapViesResponseToVatCheckResponse(viesData, originalRequest);
+                var result = MapViesResponseToVatCheckResponse(viesData, originalRequest);
+                _logger.LogInformation("VAT validation completed for {CountryCode}-{VatNumber}: {Valid}", 
+                    targetCountryCode, targetVatNumber, result.Valid);
+                return result;
             }
 
             var errorData = TryParseError(content);
+            _logger.LogWarning("VIES API error for {CountryCode}-{VatNumber}: {ErrorMessage}", 
+                targetCountryCode, targetVatNumber, errorData.ErrorMessage);
+            
             return new ViesCheckResponse
             {
                 CountryCode = targetCountryCode,
@@ -247,6 +275,9 @@ public class ViesApiService : IViesApiService
         }
         catch (Exception ex)
         {
+            _logger.LogError(ex, "Exception during VAT validation for {CountryCode}-{VatNumber}", 
+                targetCountryCode, targetVatNumber);
+            
             return new ViesCheckResponse
             {
                 CountryCode = targetCountryCode,
