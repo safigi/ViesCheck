@@ -64,15 +64,15 @@ public class ViesApiService : IViesApiService
             return new StatusInformationResponse
             {
                 Vow = new VowStatus { Available = false },
-                Countries = new List<CountryStatus>()
+                Countries = []
             };
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             return new StatusInformationResponse
             {
                 Vow = new VowStatus { Available = false },
-                Countries = new List<CountryStatus>()
+                Countries = []
             };
         }
     }
@@ -106,7 +106,7 @@ public class ViesApiService : IViesApiService
                 RequestDate = DateTime.Now,
                 Valid = false,
                 HasError = true,
-                ErrorMessage = errorData?.ErrorMessage ?? $"VIES API Error: {response.StatusCode}"
+                ErrorMessage = errorData.ErrorMessage ?? $"VIES API Error: {response.StatusCode}"
             };
         }
         catch (Exception ex)
@@ -123,7 +123,7 @@ public class ViesApiService : IViesApiService
         }
     }
 
-    private ViesCheckResponse MapViesResponseToVatCheckResponse(ViesResponse? viesData,
+    private static ViesCheckResponse MapViesResponseToVatCheckResponse(ViesResponse? viesData,
         ViesCheckRequest originalRequest)
     {
         if (viesData == null)
@@ -158,26 +158,22 @@ public class ViesApiService : IViesApiService
             TraderCompanyTypeMatch = MatchType.NOT_PROCESSED
         };
 
-        if (viesData.viesApproximate != null)
-        {
-            response.TraderNameMatch = ConvertMatchScore(viesData.viesApproximate.matchName);
-            response.TraderStreetMatch = ConvertMatchScore(viesData.viesApproximate.matchStreet);
-            response.TraderPostalCodeMatch = ConvertMatchScore(viesData.viesApproximate.matchPostalCode);
-            response.TraderCityMatch = ConvertMatchScore(viesData.viesApproximate.matchCity);
-            response.TraderCompanyTypeMatch = ConvertMatchScore(viesData.viesApproximate.matchCompanyType);
-        }
+        if (viesData.viesApproximate == null) return response;
+        response.TraderNameMatch = ConvertMatchScore(viesData.viesApproximate.matchName);
+        response.TraderStreetMatch = ConvertMatchScore(viesData.viesApproximate.matchStreet);
+        response.TraderPostalCodeMatch = ConvertMatchScore(viesData.viesApproximate.matchPostalCode);
+        response.TraderCityMatch = ConvertMatchScore(viesData.viesApproximate.matchCity);
+        response.TraderCompanyTypeMatch = ConvertMatchScore(viesData.viesApproximate.matchCompanyType);
 
         return response;
     }
 
-    private DateTime ParseRequestDate(string requestDate)
+    private static DateTime ParseRequestDate(string requestDate)
     {
-        if (DateTime.TryParse(requestDate, out var result))
-            return result;
-        return DateTime.Now;
+        return DateTime.TryParse(requestDate, out var result) ? result : DateTime.Now;
     }
 
-    private string? CleanViesValue(string value)
+    private static string? CleanViesValue(string value)
     {
         if (string.IsNullOrWhiteSpace(value) || value == "---")
             return null;
@@ -194,15 +190,15 @@ public class ViesApiService : IViesApiService
         };
     }
 
-    private ViesErrorData TryParseError(string content)
+    private static ViesErrorData TryParseError(string content)
     {
         try
         {
             var errorResponse = JsonSerializer.Deserialize<ViesErrorResponse>(content);
             return new ViesErrorData
             {
-                ErrorCode = errorResponse?.errorWrapperError?.error?.errorCode,
-                ErrorMessage = errorResponse?.errorWrapperError?.error?.errorMessage
+                ErrorCode = errorResponse?.errorWrapperError.error.errorCode,
+                ErrorMessage = errorResponse?.errorWrapperError.error.errorMessage
             };
         }
         catch
@@ -246,7 +242,7 @@ public class ViesApiService : IViesApiService
                 RequestDate = DateTime.Now,
                 Valid = false,
                 HasError = true,
-                ErrorMessage = errorData?.ErrorMessage ?? $"VIES API Error: {response.StatusCode}"
+                ErrorMessage = errorData.ErrorMessage ?? $"VIES API Error: {response.StatusCode}"
             };
         }
         catch (Exception ex)
@@ -265,7 +261,7 @@ public class ViesApiService : IViesApiService
 
     public class ViesErrorData
     {
-        public string ErrorCode { get; set; }
-        public string ErrorMessage { get; set; }
+        public string? ErrorCode { get; set; }
+        public string? ErrorMessage { get; set; }
     }
 }

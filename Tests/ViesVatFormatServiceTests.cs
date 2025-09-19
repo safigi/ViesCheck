@@ -1,15 +1,11 @@
+using ViesApi.Interfaces;
 using ViesApi.Services;
 
-namespace ViesApi.Tests;
+namespace Tests;
 
 public class ViesVatFormatServiceTests
 {
-    private readonly IViesVatFormatService _service;
-
-    public ViesVatFormatServiceTests()
-    {
-        _service = new ViesVatFormatService();
-    }
+    private readonly IViesVatFormatService _service = new ViesVatFormatService();
 
     [Fact]
     public void FormatVatNumber_ShouldAddCountryCode_WhenNotPresent()
@@ -72,7 +68,7 @@ public class ViesVatFormatServiceTests
     [InlineData(null, "HU", null)]
     [InlineData("12345678", "", "12345678")]
     [InlineData("12345678", null, "12345678")]
-    public void FormatVatNumber_ShouldHandleInvalidInputs(string vatNumber, string countryCode, string expected)
+    public void FormatVatNumber_ShouldHandleInvalidInputs(string? vatNumber, string? countryCode, string? expected)
     {
         // Act
         var result = _service.FormatVatNumber(vatNumber, countryCode);
@@ -148,6 +144,7 @@ public class ViesVatFormatServiceTests
     public void GetAllCountries_ShouldReturnLocalizedNames()
     {
         // Act
+        // ReSharper disable once RedundantArgumentDefaultValue
         var englishResult = _service.GetAllCountries("en");
         var hungarianResult = _service.GetAllCountries("hu");
 
@@ -177,6 +174,7 @@ public class ViesVatFormatServiceTests
     public void GetAllCountryNames_ShouldReturnLocalizedDictionary()
     {
         // Act
+        // ReSharper disable once RedundantArgumentDefaultValue
         var englishNames = _service.GetAllCountryNames("en");
         var hungarianNames = _service.GetAllCountryNames("hu");
 

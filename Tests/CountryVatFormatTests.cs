@@ -1,7 +1,6 @@
-using ViesApi;
 using ViesApi.Configuration;
 
-namespace ViesApi.Tests;
+namespace Tests;
 
 public class CountryVatFormatTests
 {
@@ -13,9 +12,15 @@ public class CountryVatFormatTests
         {
             CountryNames = new Dictionary<string, string>
             {
-                {"en", "Hungary"},
-                {"hu", "Magyarország"}
-            }
+                {
+                    "en", "Hungary"
+                },
+                {
+                    "hu", "Magyarország"
+                }
+            },
+            Format = "null",
+            Example = "null"
         };
 
         // Act
@@ -33,10 +38,18 @@ public class CountryVatFormatTests
         {
             CountryNames = new Dictionary<string, string>
             {
-                {"en", "Hungary"},
-                {"hu", "Magyarország"},
-                {"de", "Ungarn"}
-            }
+                {
+                    "en", "Hungary"
+                },
+                {
+                    "hu", "Magyarország"
+                },
+                {
+                    "de", "Ungarn"
+                }
+            },
+            Format = "null",
+            Example = "null"
         };
 
         // Act
@@ -56,9 +69,15 @@ public class CountryVatFormatTests
         {
             CountryNames = new Dictionary<string, string>
             {
-                {"en", "Hungary"},
-                {"hu", "Magyarország"}
-            }
+                {
+                    "en", "Hungary"
+                },
+                {
+                    "hu", "Magyarország"
+                },
+            },
+            Format = "null",
+            Example = "null"
         };
 
         // Act
@@ -76,12 +95,19 @@ public class CountryVatFormatTests
         {
             CountryNames = new Dictionary<string, string>
             {
-                {"hu", "Magyarország"},
-                {"de", "Ungarn"}
-            }
+                {
+                    "hu", "Magyarország"
+                },
+                {
+                    "de", "Ungarn"
+                }
+            },
+            Format = "null",
+            Example = "null"
         };
 
         // Act
+        // ReSharper disable once RedundantArgumentDefaultValue
         var result = format.GetCountryName("en");
 
         // Assert
@@ -94,7 +120,9 @@ public class CountryVatFormatTests
         // Arrange
         var format = new CountryVatFormat
         {
-            CountryNames = new Dictionary<string, string>()
+            CountryNames = new Dictionary<string, string>(),
+            Format = "null",
+            Example = "null"
         };
 
         // Act
@@ -112,9 +140,15 @@ public class CountryVatFormatTests
         {
             CountryNames = new Dictionary<string, string>
             {
-                {"en", "Hungary"},
-                {"hu", "Magyarország"}
-            }
+                {
+                    "en", "Hungary"
+                },
+                {
+                    "hu", "Magyarország"
+                }
+            },
+            Format = "null",
+            Example = "null"
         };
 
         // Act
@@ -136,9 +170,15 @@ public class CountryVatFormatTests
         {
             CountryNames = new Dictionary<string, string>
             {
-                {"en", "Hungary"},
-                {"hu", "Magyarország"}
-            }
+                {
+                    "en", "Hungary"
+                },
+                {
+                    "hu", "Magyarország"
+                }
+            },
+            Format = "null",
+            Example = "null"
         };
 
         // Act

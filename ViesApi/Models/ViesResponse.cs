@@ -29,5 +29,5 @@ public class ViesResponse
     public string vatNumber { get; set; }
 
     [JsonPropertyName("viesApproximate")]
-    public ViesApproximate viesApproximate { get; set; }
+    public ViesApproximate? viesApproximate { get; set; }
 }

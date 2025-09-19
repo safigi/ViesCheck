@@ -1,11 +1,12 @@
 using ViesApi.Configuration;
+using ViesApi.Interfaces;
 using ViesApi.Models;
 
 namespace ViesApi.Services;
 
 public class ViesVatFormatService : IViesVatFormatService
 {
-    public string FormatVatNumber(string vatNumber, string countryCode)
+    public string? FormatVatNumber(string? vatNumber, string? countryCode)
     {
         if (string.IsNullOrWhiteSpace(vatNumber) || string.IsNullOrWhiteSpace(countryCode))
             return vatNumber;
@@ -25,7 +26,7 @@ public class ViesVatFormatService : IViesVatFormatService
         return countryCode + vatNumber;
     }
 
-    private string ApplyCountrySpecificFormatting(string vatNumber, string countryCode, CountryVatFormat vatConfig)
+    private static string? ApplyCountrySpecificFormatting(string vatNumber, string? countryCode, CountryVatFormat vatConfig)
     {
         switch (countryCode)
         {
@@ -48,38 +49,21 @@ public class ViesVatFormatService : IViesVatFormatService
 
     public List<CountryInfo> GetAllCountries(string languageCode = "en")
     {
-        var countries = new List<CountryInfo>();
-
-        foreach (var country in ViesVatConfiguration.Formats)
-        {
-            countries.Add(new CountryInfo
-            {
-                Code = country.Key,
-                Name = country.Value.GetCountryName(languageCode),
-                Example = country.Value.Example,
-                Format = country.Value.Format
-            });
-        }
-
-        return countries;
+        return ViesVatConfiguration.Formats.Select(country => new CountryInfo { Code = country.Key, Name = country.Value.GetCountryName(languageCode), Example = country.Value.Example, Format = country.Value.Format }).ToList();
     }
 
-    public CountryVatFormat GetVatConfig(string countryCode)
+    public CountryVatFormat? GetVatConfig(string? countryCode)
     {
-        if (ViesVatConfiguration.Formats.TryGetValue(countryCode.ToUpper(), out var config))
-        {
-            return config;
-        }
-        return null;
+        return ViesVatConfiguration.Formats.GetValueOrDefault(countryCode.ToUpper());
     }
 
-    public string GetCountryName(string countryCode, string languageCode = "en")
+    public string GetCountryName(string? countryCode, string languageCode = "en")
     {
         var config = GetVatConfig(countryCode);
         return config?.GetCountryName(languageCode) ?? countryCode;
     }
 
-    public string GetExampleVatNumber(string countryCode)
+    public string GetExampleVatNumber(string? countryCode)
     {
         var config = GetVatConfig(countryCode);
         return config?.Example ?? $"{countryCode}12345678";

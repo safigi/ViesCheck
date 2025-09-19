@@ -23,8 +23,8 @@ class Program
                 {
                     config.ApiEndpoint = "https://ec.europa.eu/taxation_customs/vies/rest-api";
                     config.TimeoutSeconds = 30;
-                });
-                                services.AddSingleton<IViesVatFormatService, ViesVatFormatService>();
+                }); 
+                services.AddSingleton<IViesVatFormatService, ViesVatFormatService>();
                 services.AddHttpClient();
             })
             .Build();
@@ -36,7 +36,7 @@ class Program
         Console.WriteLine("🌍 Multi-language Country Names Test:");
         Console.WriteLine("─────────────────────────────────────");
         
-        var testCountries = new[] { "HU", "DE", "FR", "AT", "NL" };
+        string?[] testCountries = new[] { "HU", "DE", "FR", "AT", "NL" };
         var testLanguages = new[] { "en", "hu", "de", "fr" };
 
         foreach (var country in testCountries)
@@ -53,7 +53,7 @@ class Program
         Console.WriteLine("\n\n💯 VAT Number Formatting Test:");
         Console.WriteLine("─────────────────────────────────");
 
-        var testVatNumbers = new[]
+        (string, string?)[] testVatNumbers = new[]
         {
             ("10773381", "HU"),
             ("U37893801", "AT"),
