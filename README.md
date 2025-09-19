@@ -1,16 +1,26 @@
 # ViesCheck - VIES API NuGet Package
 
-A .NET library for validating VAT numbers using the European Commission's VIES service.
+A .NET library for validating VAT numbers using the European
+Commission's VIES service.\
+This package is especially useful for companies where **tax audits** may
+require official verification and the use of the **reference number**
+(request identifier) returned by the VIES service. This identifier can
+serve as evidence that the VAT number check was performed.
 
-[![GitHub Repository](https://img.shields.io/badge/GitHub-ViesCheck-blue?style=flat-square&logo=github)](https://github.com/safigi/ViesCheck)
+[![GitHub
+Repository](https://img.shields.io/badge/GitHub-ViesCheck-blue?style=flat-square&logo=github)](https://github.com/safigi/ViesCheck)
+
+------------------------------------------------------------------------
 
 ## Installation
 
 Install the package via NuGet:
 
-```bash
+``` bash
 dotnet add package ViesApi
 ```
+
+------------------------------------------------------------------------
 
 ## Usage
 
@@ -18,7 +28,7 @@ dotnet add package ViesApi
 
 Configure the VIES API service in your `Program.cs` or `Startup.cs`:
 
-```csharp
+``` csharp
 builder.Services.AddViesApiServices(config =>
 {
     config.ApiEndpoint = "https://ec.europa.eu/taxation_customs/vies/rest-api";
@@ -28,11 +38,14 @@ builder.Services.AddViesApiServices(config =>
 });
 ```
 
+------------------------------------------------------------------------
+
 ### Service Injection
 
-Inject the `IViesApiService` and `ViesVatFormatService` into your classes:
+Inject the `IViesApiService` and `ViesVatFormatService` into your
+classes:
 
-```csharp
+``` csharp
 public class YourService
 {
     private readonly IViesApiService _viesApiService;
@@ -46,11 +59,13 @@ public class YourService
 }
 ```
 
+------------------------------------------------------------------------
+
 ### Checking VAT Numbers
 
 Use the `CheckVatNumberAsync` method to validate a VAT number:
 
-```csharp
+``` csharp
 var request = new ViesCheckRequest
 {
     CountryCode = "HU",
@@ -64,6 +79,7 @@ var response = await _viesApiService.CheckVatNumberAsync(request);
 if (response.Valid)
 {
     Console.WriteLine($"VAT number is valid for {response.Name} at {response.Address}");
+    Console.WriteLine($"Reference Number: {response.RequestIdentifier}");
 }
 else
 {
@@ -71,20 +87,68 @@ else
 }
 ```
 
+⚠️ **Important:** Always store the `RequestIdentifier` (reference
+number).\
+This number proves that the VAT validation was executed through the VIES
+system and may be required during **tax authority audits**.
+
+------------------------------------------------------------------------
+
+### Response Model
+
+The `ViesCheckResponse` contains the following fields:
+
+``` csharp
+public class ViesCheckResponse
+{
+    public string CountryCode { get; set; }
+    public string VatNumber { get; set; }
+    public DateTime RequestDate { get; set; }
+    public bool Valid { get; set; }
+    public string RequestIdentifier { get; set; } // Reference number to keep for audits
+    public string Name { get; set; }
+    public string Address { get; set; }
+    public string TraderName { get; set; }
+    public string TraderStreet { get; set; }
+    public string TraderPostalCode { get; set; }
+    public string TraderCity { get; set; }
+    public string TraderCompanyType { get; set; }
+
+    public MatchType TraderNameMatch { get; set; }
+    public MatchType TraderStreetMatch { get; set; }
+    public MatchType TraderPostalCodeMatch { get; set; }
+    public MatchType TraderCityMatch { get; set; }
+    public MatchType TraderCompanyTypeMatch { get; set; }
+
+    public bool HasError { get; set; }
+    public string ErrorMessage { get; set; }
+}
+```
+
+Key property:\
+- **`RequestIdentifier`** → unique reference number from the VIES
+system.\
+Use this value for **audit documentation and compliance purposes**.
+
+------------------------------------------------------------------------
+
 ### Formatting VAT Numbers
 
-Use the `ViesVatFormatService` to format VAT numbers according to country-specific rules:
+Use the `ViesVatFormatService` to format VAT numbers according to
+country-specific rules:
 
-```csharp
+``` csharp
 var formattedVat = _vatFormatService.FormatVatNumber("12345678", "HU");
 Console.WriteLine(formattedVat); // Output: HU12345678
 ```
+
+------------------------------------------------------------------------
 
 ### Multi-language Country Names
 
 The package supports country names in multiple languages:
 
-```csharp
+``` csharp
 // Get country name in English (default)
 var englishName = _vatFormatService.GetCountryName("HU"); // "Hungary"
 
@@ -93,74 +157,63 @@ var hungarianName = _vatFormatService.GetCountryName("HU", "hu"); // "Magyarorsz
 
 // Get country name in German
 var germanName = _vatFormatService.GetCountryName("DE", "de"); // "Deutschland"
-
-// Get all countries with localized names
-var countryNames = _vatFormatService.GetAllCountryNames("en");
-foreach (var country in countryNames)
-{
-    Console.WriteLine($"{country.Key}: {country.Value}");
-}
-
-// Get all supported languages
-var languages = _vatFormatService.GetSupportedLanguages();
-// Returns: ["bg", "cs", "da", "de", "el", "en", "es", "et", "fi", "fr", "ga", "hr", "hu", "it", "lv", "lt", "mt", "nl", "pl", "pt", "ro", "sk", "sl", "sv"]
 ```
+
+------------------------------------------------------------------------
 
 ## Features
 
-- Validate VAT numbers against the VIES API
-- Format VAT numbers according to country-specific rules
-- Get country-specific VAT number examples and formats
-- Check the status of the VIES service
-- Multi-language support for country names (24 languages)
-- Clean Code and SOLID principles implementation
-- Comprehensive unit test coverage
+-   Validate VAT numbers against the VIES API\
+-   **Retrieve and store the VIES Reference Number (RequestIdentifier)
+    for tax audits**\
+-   Format VAT numbers according to country-specific rules\
+-   Get country-specific VAT number examples and formats\
+-   Check the status of the VIES service\
+-   Multi-language support for country names (24 languages)\
+-   Clean Code and SOLID principles implementation\
+-   Comprehensive unit test coverage
+
+------------------------------------------------------------------------
 
 ## Testing
 
 ### Running Unit Tests
 
-```bash
+``` bash
 dotnet test ViesApi.Tests
 ```
 
 ### Running Test Console Application
 
-```bash
+``` bash
 cd ViesApi.TestConsole
 dotnet run
 ```
 
-The test console application demonstrates:
-- Multi-language country name retrieval
-- VAT number formatting for different countries
-- VIES API status checking
-- Sample VAT number validation
+The test console application demonstrates: - Multi-language country name
+retrieval\
+- VAT number formatting for different countries\
+- VIES API status checking\
+- Sample VAT number validation (with reference number logging)\
 - All available features in action
 
-### Test Coverage
-
-The project includes comprehensive unit tests covering:
-- `ViesVatFormatService` - All formatting and utility methods
-- `ViesVatConfiguration` - Multi-language configuration
-- `CountryVatFormat` - Language fallback logic
-- Edge cases and error handling
+------------------------------------------------------------------------
 
 ## Development
 
 ### Project Structure
 
-```
-ViesApi/                   # Main NuGet package
-├── Configuration/         # Configuration classes
-├── Extensions/           # Dependency injection extensions
-├── Interfaces/           # Service interfaces
-├── Models/              # Data transfer objects
-└── Services/            # Service implementations
+    ViesApi/                   # Main NuGet package
+    ├── Configuration/         # Configuration classes
+    ├── Extensions/            # Dependency injection extensions
+    ├── Interfaces/            # Service interfaces
+    ├── Models/                # Data transfer objects
+    └── Services/              # Service implementations
 
-Tests/                    # Unit tests (xUnit)
-TestConsole/             # Demo console application
-```
+    Tests/                     # Unit tests (xUnit)
+    TestConsole/               # Demo console application
+
+------------------------------------------------------------------------
 
 ## License
 
