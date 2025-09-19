@@ -132,6 +132,43 @@ Use this value for **audit documentation and compliance purposes**.
 
 ------------------------------------------------------------------------
 
+### Audit Compliance
+
+To comply with audit requirements, the `RequestIdentifier` should be
+stored securely in your system logs or database.\
+This ensures that in case of a **tax authority review**, you can present
+the official VIES reference number proving that the VAT validation took
+place.
+
+Example of storing the reference number in a database:
+
+``` csharp
+public async Task SaveViesResultAsync(ViesCheckResponse response)
+{
+    var record = new ViesAuditLog
+    {
+        VatNumber = response.VatNumber,
+        CountryCode = response.CountryCode,
+        RequestDate = response.RequestDate,
+        ReferenceNumber = response.RequestIdentifier,
+        IsValid = response.Valid,
+        TraderName = response.Name,
+        Address = response.Address
+    };
+
+    _dbContext.ViesAuditLogs.Add(record);
+    await _dbContext.SaveChangesAsync();
+}
+```
+
+**Best practices:** - Always log the `RequestIdentifier` together with
+the VAT number.\
+- Store the `RequestDate` to prove when the validation was performed.\
+- Keep records for at least the retention period required by your local
+tax authority.
+
+------------------------------------------------------------------------
+
 ### Formatting VAT Numbers
 
 Use the `ViesVatFormatService` to format VAT numbers according to
